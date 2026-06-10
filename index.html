@@ -735,16 +735,28 @@ form?.addEventListener('submit', async (e) => {
   note.className = 'subnote';
   if(!valid){ note.textContent = 'Please enter a valid email address.'; note.classList.add('show-warn'); return; }
   if(!FORM_ENDPOINT){
-    note.textContent = 'Almost there. The list goes live once MailerLite is connected.';
+    note.textContent = 'Almost there. The newsletter goes live once the email tool is connected.';
     note.classList.add('show-warn'); return;
   }
   try{
-    await fetch(FORM_ENDPOINT, { method:'POST', mode:'no-cors',
-      headers:{'Content-Type':'application/x-www-form-urlencoded'},
-      body:new URLSearchParams({ email_address: email }) });   // Kit expects the "email_address" field
-    form.reset();
-    track('newsletter_signup');                 // GA4 conversion event (goal #2)
-    note.textContent = 'Thank you. Check your inbox to confirm.'; note.classList.add('show-ok');
+    // Kit accepts a normal CORS request that asks for JSON back. (A fire-and-forget
+    // no-cors POST is rejected by Kit with a 503.) Because we get JSON in return,
+    // we can show an accurate success/error message instead of guessing.
+    const res = await fetch(FORM_ENDPOINT, {
+      method:'POST',
+      headers:{ 'Content-Type':'application/x-www-form-urlencoded', 'Accept':'application/json' },
+      body:new URLSearchParams({ email_address: email })
+    });
+    const data = await res.json().catch(() => ({}));
+    if(data.status === 'success'){
+      form.reset();
+      track('newsletter_signup');               // GA4 conversion event (goal #2)
+      note.textContent = 'Thank you. Check your inbox to confirm.'; note.classList.add('show-ok');
+    } else {
+      note.textContent = (data.errors && data.errors.messages && data.errors.messages[0])
+        || 'Hmm, that did not go through. Please try again.';
+      note.classList.add('show-warn');
+    }
   }catch(err){
     note.textContent = 'Something went wrong. Please try again.'; note.classList.add('show-warn');
   }
