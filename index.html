@@ -523,9 +523,11 @@ body::before{
       <p class="lead" data-reveal data-delay="1">New releases and the occasional mix, straight to your inbox. No spam.</p>
 
       <!-- ===========================================================
-           MAILERLITE HOOK-UP
-           Replace this <form> with the MailerLite embed snippet, or set
-           FORM_ENDPOINT in the script to your form action URL.
+           NEWSLETTER — wired to Kit (kit.com).
+           This keeps the site's own styling; on submit the script posts
+           the email to the Kit endpoint set in FORM_ENDPOINT, and Kit
+           sends a double opt-in confirmation. To change provider later,
+           update FORM_ENDPOINT (and the field name) in the script.
       ============================================================ -->
       <form class="subform" id="subscribe-form" data-reveal data-delay="2" novalidate>
         <label for="sub-email" class="sr-only">Email address</label>
@@ -593,8 +595,9 @@ const YT_ID = "x_p-SCjSg1U";
 const SC_URL = "https://soundcloud.com/shikaimusic/sets/live-sets";
 
 /* EDIT: NEWSLETTER ----------------------------------------------------
-   Paste your MailerLite form action URL to switch the signup form on.  */
-const FORM_ENDPOINT = "";
+   Connected to Kit (kit.com). Submissions post to this Kit form endpoint
+   and Kit sends the double opt-in confirmation email.                   */
+const FORM_ENDPOINT = "https://app.kit.com/forms/9546395/subscriptions";
 
 /* EDIT: RELEASES  (the album-art wall, newest first) ------------------
    ADD a release : copy one { ... } line and put it at the TOP.
@@ -738,7 +741,7 @@ form?.addEventListener('submit', async (e) => {
   try{
     await fetch(FORM_ENDPOINT, { method:'POST', mode:'no-cors',
       headers:{'Content-Type':'application/x-www-form-urlencoded'},
-      body:new URLSearchParams({ email }) });
+      body:new URLSearchParams({ email_address: email }) });   // Kit expects the "email_address" field
     form.reset();
     track('newsletter_signup');                 // GA4 conversion event (goal #2)
     note.textContent = 'Thank you. Check your inbox to confirm.'; note.classList.add('show-ok');
