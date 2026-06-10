@@ -20,7 +20,7 @@
                       releases[]      the album-art wall
                       YT_ID           the featured YouTube video
                       SC_URL          the SoundCloud player
-                      FORM_ENDPOINT   the newsletter (MailerLite)
+                      FORM_ENDPOINT   the newsletter (Kit)
        5. JSON-LD   "structured data" that helps Google understand the site.
 
      Two jobs of this page, in priority order:
@@ -155,7 +155,6 @@ body::before{
 /* utilities */
 .wrap{ width:100%; max-width:var(--maxw); margin-inline:auto; padding-inline:var(--s-4); }
 .section{ padding-block:var(--s-8); position:relative; }
-#releases,#mixes,#subscribe,#contact{ scroll-margin-top:74px; }  /* anchor targets clear the sticky nav */
 .sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px;
   overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 .eyebrow{
@@ -477,7 +476,7 @@ body::before{
         <p class="bio__text" data-typewriter>Shikai is a Sri Lankan-born, Adelaide-based producer and DJ. His music carries a melancholic streak, weaving deep, emotive electronic textures into folk and eastern foundations, with a current focus on organic house. Since debuting in 2021 on Armada Music, he has released with Cafe De Anatolia, Soundteller Records and other great record labels, and played across Sri Lanka and Australia, in search of balance through grooves.</p>
       </div>
 
-      <!-- featured video · responsive 16:9 facade (no iframe until play) -->
+      <!-- featured video · responsive 16:9, autostarts muted (poster is the click-to-play fallback for reduced-motion) -->
       <div class="media" data-reveal>
         <div class="media__frame" id="video-frame">
           <button class="video__poster" id="video-poster" type="button" aria-label="Play the featured video">
@@ -523,7 +522,7 @@ body::before{
       <p class="lead" data-reveal data-delay="1">New releases and the occasional mix, straight to your inbox. No spam.</p>
 
       <!-- ===========================================================
-           NEWSLETTER — wired to Kit (kit.com).
+           NEWSLETTER. Wired to Kit (kit.com).
            This keeps the site's own styling; on submit the script posts
            the email to the Kit endpoint set in FORM_ENDPOINT, and Kit
            sends a double opt-in confirmation. To change provider later,
@@ -724,7 +723,7 @@ document.getElementById('video-poster')?.addEventListener('click', () => loadVid
 if(!reduce) loadVideo(true);
 
 /* =====================================================================
-   NEWSLETTER  ·  live once MailerLite is connected
+   NEWSLETTER  ·  posts to Kit (FORM_ENDPOINT); Kit sends the double opt-in
    ===================================================================== */
 const form = document.getElementById('subscribe-form');
 const note = document.getElementById('subnote');
