@@ -65,7 +65,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://image-cdn-fa.spotifycdn.com" crossorigin>
 <link rel="preconnect" href="https://image-cdn-ak.spotifycdn.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 
 <!-- ====================  ANALYTICS  ====================
      EDIT: ANALYTICS
@@ -145,6 +145,7 @@ body{
 img{ display:block; max-width:100%; }
 a{ color:inherit; text-decoration:none; }
 :focus-visible{ outline:2px solid var(--ink); outline-offset:3px; border-radius:2px; }
+::selection{ background:var(--ink); color:var(--bg); }
 
 /* faint grey vignette for depth, nothing more */
 body::before{
@@ -167,7 +168,6 @@ body::before{
 /* lotus motif (shared sprite, thin non-scaling line-art) */
 .lotus{ color:var(--ink); }
 .lotus svg, svg.ic{ display:block; }
-#lotus-petal, #lotus-ripple{ vector-effect:non-scaling-stroke; }
 .watermark{ position:absolute; pointer-events:none; color:var(--ink); opacity:.04;
   width:min(70vw,520px); aspect-ratio:100/74; z-index:0; }
 
@@ -191,7 +191,7 @@ body::before{
 .nav__links{ display:flex; align-items:center; gap:clamp(var(--s-3),3vw,var(--s-5)); }
 .nav__link{ font-size:var(--fs-label); letter-spacing:.16em; text-transform:uppercase;
   color:var(--muted); transition:color .25s var(--ease); white-space:nowrap; }
-.nav__link:hover{ color:var(--ink); }
+.nav__link:hover{ color:var(--ink); text-decoration:underline dotted; text-underline-offset:5px; }
 .nav__btn{ font-family:var(--font-display); font-weight:700; font-size:.62rem; letter-spacing:.14em;
   text-transform:uppercase; color:var(--ink); white-space:nowrap; display:inline-flex; align-items:center;
   gap:6px; border:1px solid var(--line-strong); border-radius:var(--radius); padding:7px 13px;
@@ -259,6 +259,18 @@ body::before{
 .video__poster span{ font-size:var(--fs-label); letter-spacing:.28em; text-transform:uppercase; color:var(--muted); }
 
 /* =====================================================================
+   TICKER  ·  release titles on a slow loop (decorative; the script fills
+   it from releases[] and duplicates the line so the loop is seamless)
+   ===================================================================== */
+.ticker{ overflow:hidden; border-top:1px solid var(--line); }  /* the releases section border draws the bottom line */
+.ticker__track{ display:inline-block; white-space:nowrap; padding-block:10px;
+  font-family:var(--font-display); font-size:var(--fs-label); letter-spacing:.22em;
+  text-transform:uppercase; color:var(--muted);
+  animation:ticker 60s linear infinite; }
+.ticker:hover .ticker__track{ animation-play-state:paused; }   /* let readers catch a title */
+@keyframes ticker{ to{ transform:translateX(-50%); } }         /* -50% = exactly one of the two copies */
+
+/* =====================================================================
    DISCOGRAPHY  ·  wall of album art (greyscale, colour on hover)
    ===================================================================== */
 .releases{ background:var(--bg-2); border-block:1px solid var(--line); overflow:hidden; }
@@ -266,6 +278,35 @@ body::before{
   flex-wrap:wrap; gap:var(--s-3); margin-bottom:var(--s-5); position:relative; z-index:1; }
 .releases__head h2{ font-family:var(--font-display); font-weight:700; font-size:var(--fs-h2); letter-spacing:.02em; }
 .releases__head p{ color:var(--muted); font-size:var(--fs-small); max-width:34ch; }
+
+/* spotlight · the newest release gets top billing (script renders it from releases[]) */
+.spotlight{ position:relative; z-index:1; display:flex; align-items:center; gap:var(--s-6);
+  margin-bottom:var(--s-6); padding:var(--s-5);
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg);
+  box-shadow:var(--shadow); }
+.spotlight:empty{ display:none; }        /* nothing listenable yet = no strip */
+.spotlight__cover{ flex:0 0 min(300px, 38%); display:block; border-radius:var(--radius);
+  overflow:hidden; border:1px solid var(--line); }
+.spotlight__cover img{ width:100%; height:auto; aspect-ratio:1/1; object-fit:cover; filter:var(--cover-filter);
+  transition:filter .5s var(--ease), transform .6s var(--ease); }  /* height:auto or the height attribute wins and the art stretches */
+.spotlight:hover .spotlight__cover img, .spotlight__cover:focus-visible img{ filter:none; transform:scale(1.03); }
+.spotlight__label{ font-family:var(--font-display); font-size:var(--fs-label); letter-spacing:.32em;
+  text-transform:uppercase; color:var(--muted); margin-bottom:var(--s-3); }
+.spotlight__title{ font-family:var(--font-display); font-weight:700; font-size:var(--fs-h2);
+  line-height:1.15; letter-spacing:.01em; margin-bottom:var(--s-2); }
+.spotlight__sub{ font-size:var(--fs-small); color:var(--muted); letter-spacing:.06em;
+  text-transform:uppercase; margin-bottom:var(--s-4); }
+.spotlight__btn{ display:inline-flex; align-items:center; gap:9px; white-space:nowrap;
+  font-family:var(--font-display); font-weight:700; font-size:.86rem; letter-spacing:.04em;
+  color:#fff; background:var(--ink); border:1px solid var(--ink); border-radius:var(--radius);
+  padding:13px 22px; transition:transform .25s var(--ease), background .25s var(--ease); }
+.spotlight__btn:hover{ transform:translateY(-2px); background:#000; }
+.spotlight__btn .ic{ width:16px; height:16px; }
+@media (max-width:680px){
+  .spotlight{ flex-direction:column; text-align:center; gap:var(--s-4); padding:var(--s-4); }
+  .spotlight__cover{ flex-basis:auto; width:min(260px, 80%); }
+  .spotlight__btn{ font-size:.78rem; padding:12px 18px; }   /* keeps the CTA on one line at 320px */
+}
 
 .wall{ position:relative; z-index:1; display:grid; gap:clamp(10px,1.4vw,18px);
   grid-template-columns:repeat(2,1fr); }
@@ -402,12 +443,12 @@ body::before{
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <symbol id="lotus" viewBox="0 0 100 74">
     <g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
-      <path id="lotus-petal" d="M50,60 C43.5,47 45,30 50,16 C55,30 56.5,47 50,60 Z"/>
+      <path id="lotus-petal" vector-effect="non-scaling-stroke" d="M50,60 C43.5,47 45,30 50,16 C55,30 56.5,47 50,60 Z"/>
       <use href="#lotus-petal" transform="rotate(-50 50 60)"/>
       <use href="#lotus-petal" transform="rotate(-25 50 60)"/>
       <use href="#lotus-petal" transform="rotate(25 50 60)"/>
       <use href="#lotus-petal" transform="rotate(50 50 60)"/>
-      <path id="lotus-ripple" d="M27,63 Q50,70.5 73,63"/>
+      <path id="lotus-ripple" vector-effect="non-scaling-stroke" d="M27,63 Q50,70.5 73,63"/>
     </g>
   </symbol>
   <symbol id="i-spotify" viewBox="0 0 24 24"><path fill="currentColor" d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.36-.66.48-1.021.24-2.82-1.74-6.36-2.1-10.561-1.14-.42.12-.84-.18-.96-.6-.12-.42.18-.84.6-.96 4.56-1.02 8.52-.6 11.64 1.32.42.18.48.66.302 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.48.12-1.02-.12-1.14-.6-.12-.48.12-1.02.6-1.14C9.6 9.9 15 10.56 18.72 12.84c.36.18.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.3c-.6.18-1.2-.18-1.38-.72-.18-.6.18-1.2.72-1.38 4.26-1.26 11.28-1.02 15.721 1.62.54.3.72 1.02.42 1.56-.301.42-1.02.6-1.561.3z"/></symbol>
@@ -488,6 +529,9 @@ body::before{
     </div>
   </section>
 
+  <!-- release ticker · decorative marquee; the script fills it from releases[] -->
+  <div class="ticker" aria-hidden="true"><div class="ticker__track" id="ticker-track"></div></div>
+
   <!-- ===================== DISCOGRAPHY ===================== -->
   <section class="releases section" id="releases" aria-labelledby="rel-h">
     <span class="watermark lotus" style="right:-6%; top:8%;" aria-hidden="true"><svg viewBox="0 0 100 74"><use href="#lotus"/></svg></span>
@@ -497,6 +541,8 @@ body::before{
         <h2 id="rel-h" data-reveal>Releases</h2>
         <p data-reveal data-delay="1">A growing body of work. Newest first. Tap any cover to listen.</p>
       </div>
+      <!-- newest-release spotlight · rendered by the script from the top of releases[] -->
+      <div class="spotlight" id="spotlight" data-reveal></div>
       <div class="wall" id="wall" data-reveal></div>
     </div>
   </section>
@@ -616,11 +662,12 @@ const releases = [
   { title:"Ethereal Progressions 002", year:2023, type:"DJ Mix",                      url:"https://open.spotify.com/album/1cMfwwgSsVoKEKJi5q2hO8", img:"https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e022750b4ca00f677492a7a555f" },
   { title:"Ethereal Progressions 001", year:2023, type:"DJ Mix",                      url:"https://open.spotify.com/album/55V0nVA1NuDe0twe785Zed", img:"https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e024525ddd428d893e4fdb6420b" },
   { title:"Let Go",                    year:2022, type:"Single · with Swarga",        url:"https://open.spotify.com/album/0FXp4xvjte96otC6jOeWQQ", img:"https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e025643be34329e1f4ed11ebb1a" },
+  { title:"Dying of the Light",        year:2022, type:"Compilation · Vibrant Vibeland #19", url:"https://open.spotify.com/track/6dKQCWhmyXRGxtuQs1D1Zo", img:"https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e02b58f205432b89068b0b4fd30" },  // appears on a compilation, so the link goes straight to the track
   { title:"Mindstream",                year:2021, type:"Single",                      url:"https://open.spotify.com/album/6aWlcMFqBRpTOWeUsY9hHR", img:"https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e02d13e2907f37cf2dca4799a3b" },
   { title:"Never Be Yours",            year:2021, type:"Single",                      url:"https://open.spotify.com/album/5f6qz7EOBOjVtFBInFNHKk", img:"https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e02ad5a7b52353f92a2c602ac27" },
   { title:"Equanimity",                year:2021, type:"Single",                      url:"https://open.spotify.com/album/05VJPQESRgTBOUBJofiuhW", img:"https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e02bd1621feced50ee3b406cc25" },
   { title:"Home",                      year:2019, type:"Single",                      url:"https://open.spotify.com/album/20A0R4ufLfCOGLFyinc8QP", img:"https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e02658d29b1b692740c2996a488" },
-  { title:"Koe",                       year:2018, type:"Single",                      url:"",  img:"" }   // add link when available
+  { title:"Koe",                       year:2018, type:"Single",                      url:"https://open.spotify.com/album/08FyvvAYwEKO3bGZXxTjC8", img:"https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e02f63cc0eb2996023e50b3e088" }
 ];
 
 /* (Featured video, Mixes and Newsletter settings live in the EDIT block above.) */
@@ -648,6 +695,45 @@ function tileHTML(r){
 wall.innerHTML = releases.map(tileHTML).join('');
 
 /* =====================================================================
+   SPOTLIGHT  ·  the newest release, top billing. Renders automatically:
+   releases[] is newest first, so the first entry with a link and a cover
+   is the latest listenable release. Add a release at the top of the
+   array and this section updates itself.
+   ===================================================================== */
+(function(){
+  const spot = document.getElementById('spotlight');
+  const latest = releases.find(r => r.url && r.img);
+  if(!spot || !latest) return;
+  // Spotify serves the same art at several sizes; swapping the size id
+  // (300px -> 640px) keeps the large spotlight cover sharp on retina.
+  const bigImg = latest.img.replace('00001e02','0000b273');
+  spot.innerHTML = `
+    <a class="spotlight__cover" href="${esc(latest.url)}" target="_blank" rel="noopener"
+       aria-label="${esc(latest.title)}, listen on Spotify">
+      <img src="${esc(bigImg)}" width="640" height="640" loading="lazy" decoding="async"
+        alt="Shikai, ${esc(latest.title)} cover art"></a>
+    <div class="spotlight__info">
+      <p class="spotlight__label">Out now</p>
+      <p class="spotlight__title">${esc(latest.title)}</p>
+      <p class="spotlight__sub">${esc(latest.type)} · ${latest.year}</p>
+      <a class="spotlight__btn" href="${esc(latest.url)}" target="_blank" rel="noopener">
+        <svg class="ic" aria-hidden="true"><use href="#i-spotify"/></svg> Listen on Spotify</a>
+    </div>`;
+  const im = spot.querySelector('img');   // if the 640px art is missing, fall back to the stored 300px
+  im.addEventListener('error', () => { im.src = latest.img; }, { once:true });
+})();
+
+/* =====================================================================
+   TICKER  ·  release titles for the marquee strip under the hero.
+   Two identical copies of the line; the CSS loop slides exactly one.
+   ===================================================================== */
+(function(){
+  const t = document.getElementById('ticker-track'); if(!t) return;
+  const line = releases.map(r => `${r.title} (${r.year})`).join('  ·  ') + '  ·  ';
+  t.textContent = line + line;
+})();
+
+/* =====================================================================
    SOUNDCLOUD  ·  inject player from SC_URL
    ===================================================================== */
 (function(){
@@ -669,7 +755,9 @@ const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 function typeIn(el){
   const full = el.dataset.full; let i = 0;   // text was captured from the HTML on load
   (function tick(){ el.textContent = full.slice(0, i++);
-    if(i <= full.length) setTimeout(tick, 13); })();
+    if(i <= full.length) setTimeout(tick, 13);
+    else el.style.minHeight = '';            // release the reserved height (it goes stale if the window resizes)
+  })();
 }
 
 // IntersectionObserver runs a callback when an element scrolls into view.
@@ -686,7 +774,7 @@ if(!reduce && 'IntersectionObserver' in window){
   // the full text stays in the HTML so it shows even if JS is disabled)
   const tw = new IntersectionObserver((ents)=>{
     ents.forEach(en => { if(en.isIntersecting){ typeIn(en.target); tw.unobserve(en.target); } });
-  }, { threshold:0.4 });
+  }, { threshold:0.2 });   // 0.4 can never fire if the element is taller than 40% of the viewport
   // Take the bio text straight from the HTML (single source of truth),
   // reserve its final height so typing doesn't push the page around,
   // then clear it and type it back in.
