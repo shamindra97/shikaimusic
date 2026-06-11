@@ -349,7 +349,9 @@ body::before{
    SUBSCRIBE
    ===================================================================== */
 .subscribe{ text-align:center; }
-.subscribe .lotus{ width:44px; margin:0 auto var(--s-4); opacity:.9; }
+.subscribe .lotus{ display:block; width:50%; max-width:520px; margin:0 auto var(--s-4); opacity:.9; }
+/* display:block makes the width stick: the lotus is a <span> (inline), and inline
+   elements ignore width, which is why it used to stretch to the full content width */
 .subscribe h2{ font-family:var(--font-display); font-weight:700; font-size:var(--fs-h2); letter-spacing:.01em; margin-bottom:var(--s-3); }
 .subscribe p.lead{ color:var(--muted); max-width:46ch; margin:0 auto var(--s-5); font-size:var(--fs-body); }
 
@@ -591,7 +593,7 @@ body::before{
       <h2 id="contact-h" data-reveal>Get in touch</h2>
       <p class="contact__lead" data-reveal data-delay="1">For bookings, remixes and label enquiries.</p>
       <!-- Contact email: update to your preferred address, or split into booking / management. -->
-      <a class="contact__email" href="mailto:bookings@shikaimusic.com" data-reveal data-delay="1">bookings@shikaimusic.com</a>
+      <a class="contact__email" href="mailto:shamindra@shikaimusic.com" data-reveal data-delay="1">shamindra@shikaimusic.com</a>
     </div>
   </section>
 </main>
