@@ -342,7 +342,7 @@ body::before{
 .mixes__lead{ color:var(--muted); font-size:var(--fs-small); max-width:46ch; margin-bottom:var(--s-5); }
 .sc{ max-width:880px; }
 .sc__embed{ border:1px solid var(--line); border-radius:var(--radius-lg); overflow:hidden;
-  background:var(--bg-2); min-height:300px; box-shadow:var(--shadow); }
+  background:var(--bg-2); min-height:420px; box-shadow:var(--shadow); }  /* matches the player height so it appears without a layout shift */
 .sc__embed iframe{ display:block; }
 
 /* =====================================================================
@@ -734,17 +734,31 @@ wall.innerHTML = releases.map(tileHTML).join('');
 })();
 
 /* =====================================================================
-   SOUNDCLOUD  ·  inject player from SC_URL
+   SOUNDCLOUD  ·  inject player from SC_URL.
+   The iframe is only created when the Mixes section scrolls near, so the
+   widget's ~1 MB of script never downloads for visitors who stay up top.
    ===================================================================== */
 (function(){
   const host = document.getElementById('sc-embed'); if(!host) return;
-  const src = "https://w.soundcloud.com/player/?url=" + encodeURIComponent(SC_URL)
-    + "&color=%23161616&auto_play=false&hide_related=true&show_comments=false"
-    + "&show_user=true&show_reposts=false&show_teaser=false&visual=true";
-  const f = document.createElement('iframe');
-  f.width = "100%"; f.height = "420"; f.scrolling = "no"; f.frameBorder = "no";
-  f.loading = "lazy"; f.allow = "autoplay"; f.title = "Shikai on SoundCloud"; f.src = src;
-  host.appendChild(f);
+  function buildPlayer(){
+    if(host.dataset.loaded) return;
+    host.dataset.loaded = '1';
+    const src = "https://w.soundcloud.com/player/?url=" + encodeURIComponent(SC_URL)
+      + "&color=%23161616&auto_play=false&hide_related=true&show_comments=false"
+      + "&show_user=true&show_reposts=false&show_teaser=false&visual=true";
+    const f = document.createElement('iframe');
+    f.width = "100%"; f.height = "420"; f.scrolling = "no"; f.frameBorder = "no";
+    f.loading = "lazy"; f.allow = "autoplay"; f.title = "Shikai on SoundCloud"; f.src = src;
+    host.appendChild(f);
+  }
+  if('IntersectionObserver' in window){
+    const io = new IntersectionObserver((ents) => {
+      if(ents.some(en => en.isIntersecting)){ buildPlayer(); io.disconnect(); }
+    }, { rootMargin:'600px 0px' });   // start ~600px early so the player is ready when it scrolls in
+    io.observe(host);
+  } else {
+    buildPlayer();                    // no IntersectionObserver: load immediately, as before
+  }
 })();
 
 /* =====================================================================
